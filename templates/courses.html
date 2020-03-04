@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}
+	<head>
+		<title>Courses</title>
+{% endblock %}
+{% block content %}
+	<h2>Courses</h2>
+		{% for course in courses %}
+		    {{course}}
+			<br>
+		{% endfor %}
+{% endblock %}
