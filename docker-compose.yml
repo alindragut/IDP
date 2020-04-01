@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  app:
+    image: alindragut/idp:latest
+    links:
+      - db
+    ports:
+      - '5000:5000'
+  db:
+    image: mysql:5.6
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - '32000:3306'
+    volumes:
+      - my-db:/var/lib/mysql
+
+networks:
+  backend:
+
+volumes:
+  my-db:
