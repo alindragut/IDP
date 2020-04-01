@@ -3,8 +3,9 @@ from flask import Flask, render_template, request, session, redirect, url_for, j
 
 app = Flask(__name__)
 mydb = mysql.connector.connect(
-		host="127.0.0.1",
+		host="db",
 		user="root",
+        	port="3306",
 		password="root",
 		database="IDP"
 	)
