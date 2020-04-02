@@ -7,7 +7,8 @@ mydb = mysql.connector.connect(
 		user="root",
         	port="3306",
 		password="root",
-		database="IDP"
+		database="IDP",
+		auth_plugin='mysql_native_password'
 	)
 
 cursor = mydb.cursor()
@@ -22,8 +23,9 @@ def index():
 @app.route('/courses')
 def courses():
 	l = []
-	query = ("SELECT * from courses C inner join users_enrolled_to_courses E on "
-		" E.course_id = C.course_id where E.user_id = 2")
+	#query = ("SELECT * from courses C inner join users_enrolled_to_courses E on "
+	#	" E.course_id = C.course_id where E.user_id = 2")
+	query = ("SELECt * from courses")
 	cursor.execute(query)
 	for i in cursor:
 		l.append(i)

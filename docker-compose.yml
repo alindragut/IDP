@@ -3,7 +3,7 @@ version: "3"
 services:
   app:
     image: alindragut/idp:latest
-    links:
+    depends_on:
       - db
     ports:
       - '5000:5000'
@@ -26,7 +26,7 @@ services:
     ports:
       - '32000:3306'
     volumes:
-      - my-db1:/var/lib/mysql
+      - db:/var/lib/mysql
     networks:
       - backend
     deploy:
@@ -37,4 +37,4 @@ networks:
   backend:
 
 volumes:
-  my-db:
+  db:

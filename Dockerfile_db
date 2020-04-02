@@ -1,5 +1,5 @@
-FROM mysql:5.6
-ENV MYSQL_DATABASE IDP3
+FROM mysql:latest
+ENV MYSQL_DATABASE IDP
 COPY ./sql-scripts/ /docker-entrypoint-initdb.d/
 
 
