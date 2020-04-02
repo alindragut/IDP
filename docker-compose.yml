@@ -19,14 +19,14 @@ services:
         condition: on-failure
 
   db:
-    image: mysql:5.6
+    image: alindragut/idp:db
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
     ports:
       - '32000:3306'
     volumes:
-      - my-db:/var/lib/mysql
+      - my-db1:/var/lib/mysql
     networks:
       - backend
     deploy:
