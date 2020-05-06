@@ -5,7 +5,7 @@ from flask import Flask, render_template, request, session, redirect, url_for, j
 from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "89785cb474594c26920fb62b341a437b"
+app.config["SECRET_KEY"] = "89785cb474594c26920fb62b341a436b"
 mydb = mysql.connector.connect(
 		host="db",
 		user="root",
@@ -23,6 +23,7 @@ metrics.info('app_info', 'Application info', version = '1.0.3')
 
 @app.before_request
 def before_request():
+
     now = datetime.datetime.now()
     if not session.get('user_id') is None:
 	    try:
@@ -48,20 +49,6 @@ def before_request():
 def index():
 	return render_template('index.html')
 
-@app.route('/enroll', methods=["POST"])
-def enroll():
-	if session.get("user_id") is None:
-		return redirect(url_for("login"))
-
-	req = request.form
-
-	course_id = req.get("course_id")
-
-	cursor.callproc("enrollUserToCourse", (session["user_id"], course_id))
-	mydb.commit()
-
-	return redirect(url_for("browse"))
-
 @app.route('/courses')
 def courses():
 	if session.get("user_id") is None:
@@ -75,18 +62,29 @@ def courses():
 
 	return render_template('courses.html', courses = l, uuid_ = str(session["uuid"]))
 
-@app.route('/browse')
-def browse():
+@app.route('/check_course', methods=["POST"])
+def check_course():
 	if session.get("user_id") is None:
 		return redirect(url_for("login"))
 
-	l = []
-	cursor.callproc("getAllCourses", (session["user_id"], ))
-	for i in cursor.stored_results():
-		for j in i.fetchall():
-			l.append(j)
-	
-	return render_template('browse.html', courses = l)
+	req = request.form
+
+	course_name = req.get("course_name")
+	date = req.get("date")
+	max_students = req.get("max_students")
+	channel_name = req.get("channel_name")
+
+	cursor.callproc('createCourse', (session['user_id'], course_name, max_students, date, channel_name))
+	mydb.commit()
+
+	return redirect(url_for("courses"))
+
+@app.route('/create_course')
+def create_course():
+	if session.get("user_id") is None:
+		return redirect(url_for("login"))
+
+	return render_template('create_course.html')
 
 @app.route('/logout')
 def logout():
@@ -115,7 +113,7 @@ def check():
 
 	res = []
 
-	cursor.callproc("checkUser", (username, password, True))
+	cursor.callproc("checkUser", (username, password, False))
 
 	for i in cursor.stored_results():
 		for j in i.fetchall():
@@ -156,7 +154,7 @@ def create():
 	name = req.get("Name")
 
 	try:
-		cursor.callproc('createUser', (username, password, name, True))
+		cursor.callproc('createUser', (username, password, name, False))
 		mydb.commit()
 	except:
 		return redirect(url_for("register"))
@@ -172,4 +170,4 @@ def register():
 	return render_template('register.html')
 
 if __name__ == '__main__':
-	app.run(host = '0.0.0.0', debug = True)
+	app.run(host = '0.0.0.0', port = 5001, debug = True)

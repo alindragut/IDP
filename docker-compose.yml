@@ -1,32 +1,93 @@
 version: "3"
 
 services:
-  app:
-    image: alindragut/idp:latest
-    depends_on:
-      - db
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
     ports:
-      - '5000:5000'
+      - 9090:9090
     networks:
       - backend
     deploy:
-      replicas: 2
-      resources:
-        limits:
-          cpus: "0.2"
-          memory: 50M
+      placement:
+        constraints:
+          - node.role==manager
+      restart_policy:
+        condition: on-failure
+
+  node-exporter:
+    image: prom/node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command: 
+      - '--path.procfs=/host/proc' 
+      - '--path.sysfs=/host/sys'
+      - --collector.filesystem.ignored-mount-points
+      - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
+    ports:
+      - 9100:9100
+    networks:
+      - backend
+    deploy:
+      mode: global
+      restart_policy:
+          condition: on-failure
+
+  student:
+    image: student
+    depends_on:
+      - db
+    ports:
+      - 5000:5000
+    networks:
+      - backend
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  professor:
+    image: professor
+    depends_on:
+      - db
+    ports:
+      - 5001:5001
+    networks:
+      - backend
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  chat:
+    image: chat
+    depends_on:
+      - db
+    ports:
+      - 5002:5002
+    networks:
+      - backend
+    deploy:
       restart_policy:
         condition: on-failure
 
   db:
-    image: alindragut/idp:db
+    image: mysql:latest
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
     ports:
       - '32000:3306'
     volumes:
-      - db:/var/lib/mysql
+      - mydbvol:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - backend
     deploy:
@@ -37,4 +98,6 @@ networks:
   backend:
 
 volumes:
-  db:
+  mydbvol:
+  prometheus_data:
+

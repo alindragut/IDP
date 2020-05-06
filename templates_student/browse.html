@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}
+	<head>
+		<title>Browse</title>
+{% endblock %}
+{% block content %}
+<html>
+<head>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+</head>
+<body>
+
+<h2>Browse all courses:</h2>
+
+<table>
+  <tr>
+    <th>Course name</th>
+    <th>Course owner</th>
+    <th>Course end date</th>
+    <th>Current number of enrolled students</th>
+    <th>Maximum number of enrolled students</th>
+    <th>Eligible to enroll</th>
+  </tr>
+  
+    {% for course in courses %}
+	<tr>
+		<td>{{course[0]}}</td>
+		<td>{{course[1]}}</td>
+		<td>{{course[2]}}</td>
+		<td>{{course[3]}}</td>
+		<td>{{course[4]}}</td>
+		<td>
+		{% if course[5] == 'YES' %}
+			<form action="/enroll" method="post">
+				<input type="hidden" name="course_id" value = {{course[6]}}>
+	    			<input type="submit" value="Enroll" />
+			</form>
+		{% else %}
+			{{course[5]}}
+		{% endif %}
+		</td>
+	</tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

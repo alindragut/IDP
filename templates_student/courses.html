@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}
+	<head>
+		<title>Courses</title>
+{% endblock %}
+{% block content %}
+<html>
+<head>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+</head>
+<body>
+
+<h2>Courses you are enrolled to:</h2>
+
+<table>
+  <tr>
+    <th>Course name</th>
+    <th>Course owner</th>
+    <th>Course end date</th>
+    <th>Chat link</th>
+  </tr>
+  
+    {% for course in courses %}
+	<tr>
+		<td>{{course[0]}}</td>
+		<td>{{course[1]}}</td>
+		<td>{{course[2]}}</td>
+		<td>
+			<form action="http://127.0.0.1:5002/" method="post">
+				<input type="hidden" name="uuid" value = {{uuid_}}>
+				<input type="hidden" name="course_id" value = {{course[3]}}>
+				<input type="hidden" name="channel_id" value = {{course[4]}}>
+	    			<input type="submit" value="Go to chat" />
+			</form>
+		</td>
+	</tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
